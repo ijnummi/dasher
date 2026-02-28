@@ -1,25 +1,26 @@
 import json
 import uuid
-from typing import Literal
 
-import aiosqlite
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-from dasher.database import db_path
+from dasher.database import db_connect
+from dasher.routers.widgets import WIDGET_TYPES
 
 router = APIRouter(prefix="/widgets", tags=["widgets"])
-
-WIDGET_TYPES = Literal[
-    "clock", "gmail", "rss", "hass", "sabnzbd", "unifi",
-    "html", "crawler_alert", "dummy", "tech_about",
-]
-
 
 # --- Schemas ---
 
 class WidgetConfig(BaseModel):
-    widget_type: WIDGET_TYPES
+    widget_type: str
+
+    @field_validator("widget_type")
+    @classmethod
+    def validate_widget_type(cls, v: str) -> str:
+        if v not in WIDGET_TYPES:
+            raise ValueError(f"Unknown widget_type '{v}'. Valid: {WIDGET_TYPES}")
+        return v
+
     name: str = ""
     config: dict = {}
     grid_x: int = Field(default=0, ge=0)
@@ -45,9 +46,7 @@ class WidgetColorUpdate(BaseModel):
 
 @router.get("/instances")
 async def list_instances() -> dict:
-    async with aiosqlite.connect(db_path()) as db:
-        await db.execute("PRAGMA foreign_keys = ON")
-        db.row_factory = aiosqlite.Row
+    async with db_connect() as db:
         async with db.execute(
             "SELECT id, widget_type, name, config, grid_x, grid_y, grid_w, grid_h, background_color"
             " FROM widget_instances ORDER BY grid_y, grid_x"
@@ -74,8 +73,7 @@ async def list_instances() -> dict:
 @router.post("/instances", status_code=201)
 async def create_instance(body: WidgetConfig) -> dict:
     widget_id = str(uuid.uuid4())
-    async with aiosqlite.connect(db_path()) as db:
-        await db.execute("PRAGMA foreign_keys = ON")
+    async with db_connect() as db:
         await db.execute(
             "INSERT INTO widget_instances"
             " (id, widget_type, name, config, grid_x, grid_y, grid_w, grid_h, background_color)"
@@ -91,8 +89,7 @@ async def create_instance(body: WidgetConfig) -> dict:
 
 @router.patch("/instances/{widget_id}")
 async def update_instance(widget_id: str, body: WidgetPositionUpdate) -> dict:
-    async with aiosqlite.connect(db_path()) as db:
-        await db.execute("PRAGMA foreign_keys = ON")
+    async with db_connect() as db:
         if body.name is not None:
             result = await db.execute(
                 "UPDATE widget_instances SET grid_x=?, grid_y=?, grid_w=?, grid_h=?, name=? WHERE id=?",
@@ -111,8 +108,7 @@ async def update_instance(widget_id: str, body: WidgetPositionUpdate) -> dict:
 
 @router.patch("/instances/{widget_id}/color")
 async def update_instance_color(widget_id: str, body: WidgetColorUpdate) -> dict:
-    async with aiosqlite.connect(db_path()) as db:
-        await db.execute("PRAGMA foreign_keys = ON")
+    async with db_connect() as db:
         result = await db.execute(
             "UPDATE widget_instances SET background_color=? WHERE id=?",
             (body.background_color, widget_id),
@@ -125,7 +121,6 @@ async def update_instance_color(widget_id: str, body: WidgetColorUpdate) -> dict
 
 @router.delete("/instances/{widget_id}", status_code=204)
 async def delete_instance(widget_id: str) -> None:
-    async with aiosqlite.connect(db_path()) as db:
-        await db.execute("PRAGMA foreign_keys = ON")
+    async with db_connect() as db:
         await db.execute("DELETE FROM widget_instances WHERE id=?", (widget_id,))
         await db.commit()

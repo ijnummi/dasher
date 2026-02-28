@@ -3,13 +3,16 @@ import type { Layout } from 'react-grid-layout'
 
 const BASE = '/api'
 
+// SYNC: fetchWidgets ↔ frontend/admin/src/api/widgets.ts fetchInstances
+// Same endpoint, same response shape. Keep error messages and return value identical.
 export async function fetchWidgets(): Promise<WidgetInstance[]> {
   const res = await fetch(`${BASE}/widgets/instances`)
-  if (!res.ok) throw new Error('Failed to fetch widgets')
+  if (!res.ok) throw new Error('Failed to fetch widget instances')
   const data = await res.json()
   return data.widgets
 }
 
+// SYNC: patchWidgetColor ↔ frontend/admin/src/api/widgets.ts patchWidgetColor (byte-for-byte identical)
 export async function patchWidgetColor(id: string, color: string | null): Promise<void> {
   const res = await fetch(`${BASE}/widgets/instances/${id}/color`, {
     method: 'PATCH',

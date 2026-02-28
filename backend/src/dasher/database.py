@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import uuid
+from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
 import aiosqlite
@@ -27,6 +28,15 @@ async def get_session() -> AsyncSession:
 
 def db_path() -> str:
     return urlparse(settings.database_url).path
+
+
+@asynccontextmanager
+async def db_connect():
+    """Open a DB connection with foreign keys enabled and row_factory set."""
+    async with aiosqlite.connect(db_path()) as db:
+        await db.execute("PRAGMA foreign_keys = ON")
+        db.row_factory = aiosqlite.Row
+        yield db
 
 
 DDL = """

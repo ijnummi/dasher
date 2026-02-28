@@ -65,13 +65,13 @@ export default function App() {
   const { overrides, setColor } = useColorOverrides()
 
   const { data: widgets = [], isLoading, isError } = useQuery({
-    queryKey: ['widgets'],
+    queryKey: ['widget-instances'],
     queryFn: fetchWidgets,
   })
 
   const layoutMutation = useMutation({
     mutationFn: saveLayout,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widget-instances'] }),
     onError: () => console.error('Failed to save layout'),
   })
 

@@ -98,7 +98,8 @@ export interface WidgetDefinition<TConfig = Record<string, unknown>> {
 
 // ── Widget Instance ────────────────────────────────────────────────────────────
 // Shape returned by GET /api/widgets/instances — mirrors the DB row.
-
+// SYNC: WidgetInstance ↔ frontend/admin/src/api/widgets.ts WidgetInstance
+// Fields must stay identical. Extract to shared npm workspace package when added.
 export interface WidgetInstance {
   id: string
   widget_type: string

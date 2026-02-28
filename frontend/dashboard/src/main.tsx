@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App'
 
+// SYNC: QueryClient config ↔ frontend/admin/src/lib/queryClient.ts
+// staleTime and retry must stay identical in both apps.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

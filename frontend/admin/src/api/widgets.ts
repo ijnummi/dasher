@@ -1,8 +1,7 @@
 const BASE = '/api'
 
-// TODO: this duplicates WidgetInstance in frontend/dashboard/src/sdk/types.ts.
-// Once we add an npm workspace, extract to a shared package so both apps
-// import from one source of truth.
+// SYNC: WidgetInstance ↔ frontend/dashboard/src/sdk/types.ts WidgetInstance
+// Fields must stay identical. Extract to shared npm workspace package when added.
 export interface WidgetInstance {
   id: string
   widget_type: string
@@ -15,12 +14,15 @@ export interface WidgetInstance {
   background_color: string | null
 }
 
+// SYNC: fetchInstances ↔ frontend/dashboard/src/api/widgets.ts fetchWidgets
+// Same endpoint, same response shape. Keep error messages and return value identical.
 export async function fetchInstances(): Promise<WidgetInstance[]> {
   const res = await fetch(`${BASE}/widgets/instances`)
   if (!res.ok) throw new Error('Failed to fetch widget instances')
   return (await res.json()).widgets
 }
 
+// SYNC: patchWidgetColor ↔ frontend/dashboard/src/api/widgets.ts patchWidgetColor (byte-for-byte identical)
 export async function patchWidgetColor(id: string, color: string | null): Promise<void> {
   const res = await fetch(`${BASE}/widgets/instances/${id}/color`, {
     method: 'PATCH',

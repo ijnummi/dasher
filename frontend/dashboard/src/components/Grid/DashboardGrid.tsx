@@ -9,6 +9,7 @@ export type { WidgetInstance }
 
 interface Props {
   widgets: WidgetInstance[]
+  editMode: boolean
   onLayoutSave: (layout: Layout[]) => void
 }
 
@@ -25,7 +26,7 @@ function renderWidget(w: WidgetInstance) {
   return <def.component config={config} instanceId={w.id} />
 }
 
-export default function DashboardGrid({ widgets, onLayoutSave }: Props) {
+export default function DashboardGrid({ widgets, editMode, onLayoutSave }: Props) {
   const layout: Layout[] = widgets.map((w) => ({
     i: w.id,
     x: w.grid_x,
@@ -41,14 +42,18 @@ export default function DashboardGrid({ widgets, onLayoutSave }: Props) {
       cols={12}
       rowHeight={80}
       width={1200}
+      isDraggable={editMode}
+      isResizable={editMode}
       draggableHandle=".drag-handle"
       onDragStop={(layout) => onLayoutSave(layout)}
       onResizeStop={(layout) => onLayoutSave(layout)}
     >
       {widgets.map((w) => (
         <div key={w.id} className="relative">
-          <div className="drag-handle absolute top-1 left-1 right-1 h-5 cursor-grab rounded bg-slate-700/40 hover:bg-slate-600/60 transition-colors" />
-          <div className="pt-6 h-full">
+          {editMode && (
+            <div className="drag-handle absolute top-1 left-1 right-1 h-5 cursor-grab rounded bg-slate-700/40 hover:bg-slate-600/60 transition-colors" />
+          )}
+          <div className={editMode ? 'pt-6 h-full' : 'h-full'}>
             {renderWidget(w)}
           </div>
         </div>

@@ -2,6 +2,7 @@ import GridLayout, { Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import DummyWidget from '../widgets/DummyWidget'
+import TechAboutWidget from '../widgets/TechAboutWidget'
 
 export interface WidgetInstance {
   id: string
@@ -22,6 +23,8 @@ function renderWidget(w: WidgetInstance) {
   switch (w.widget_type) {
     case 'dummy':
       return <DummyWidget config={w.config as { nimi?: string }} />
+    case 'tech_about':
+      return <TechAboutWidget />
     default:
       return (
         <div className="flex items-center justify-center h-full rounded-lg border border-slate-700 bg-slate-800/50 text-slate-500 text-sm">

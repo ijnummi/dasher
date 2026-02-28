@@ -80,8 +80,11 @@ async def init_db() -> None:
         async with db.execute("SELECT COUNT(*) FROM widget_instances") as cursor:
             (count,) = await cursor.fetchone()
         if count == 0:
-            await db.execute(
+            await db.executemany(
                 "INSERT INTO widget_instances (id, widget_type, config, grid_x, grid_y, grid_w, grid_h) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (str(uuid.uuid4()), "dummy", json.dumps({"nimi": "Dasher"}), 0, 0, 3, 2),
+                [
+                    (str(uuid.uuid4()), "dummy",      json.dumps({"nimi": "Dasher"}), 0, 0, 3, 2),
+                    (str(uuid.uuid4()), "tech_about", json.dumps({}),                 3, 0, 9, 6),
+                ],
             )
             await db.commit()

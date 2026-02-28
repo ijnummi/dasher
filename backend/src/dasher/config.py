@@ -26,6 +26,10 @@ class Settings(BaseSettings):
 
     ollama_url: str = "http://host.docker.internal:11434"
 
+    google_client_id:     str = ""
+    google_client_secret: str = ""
+    google_refresh_token: str = ""
+
 
 settings = Settings()
 

@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from dasher.config import settings
 from dasher.database import init_db
-from dasher.routers import crawler, hass, layout, rss, sabnzbd, unifi, websocket
+from dasher.routers import crawler, gmail, hass, layout, rss, sabnzbd, unifi, websocket
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.include_router(hass.router)
 app.include_router(sabnzbd.router)
 app.include_router(unifi.router)
 app.include_router(crawler.router)
+app.include_router(gmail.router)
 
 
 @app.get("/health")

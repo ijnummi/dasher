@@ -1,3 +1,5 @@
+import type { WidgetDefinition, WidgetProps } from '../../sdk'
+
 const { backend, dashboard, admin } = __VERSIONS__ ?? { backend: {}, dashboard: {}, admin: {} }
 
 const DISPLAY_NAMES: Record<string, string> = {
@@ -65,7 +67,7 @@ function Section({ title, deps }: { title: string; deps: Record<string, string> 
   )
 }
 
-export default function TechAboutWidget() {
+function TechAboutWidget(_: WidgetProps) {
   return (
     <div className="h-full rounded-lg border border-slate-700 bg-slate-800/50 p-3 overflow-auto">
       <h2 className="text-sm font-bold text-slate-100 mb-3">Tech Stack</h2>
@@ -77,3 +79,13 @@ export default function TechAboutWidget() {
     </div>
   )
 }
+
+export const definition: WidgetDefinition = {
+  type: 'tech_about',
+  label: 'Tech Stack',
+  description: 'Displays library versions for all Dasher components.',
+  component: TechAboutWidget,
+  defaultSize: { w: 9, h: 6 },
+}
+
+export default TechAboutWidget

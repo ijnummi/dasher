@@ -1,18 +1,11 @@
 import GridLayout, { Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import DummyWidget from '../widgets/DummyWidget'
-import TechAboutWidget from '../widgets/TechAboutWidget'
+import { resolveWidget } from '../../sdk'
+import type { WidgetInstance } from '../../sdk'
 
-export interface WidgetInstance {
-  id: string
-  widget_type: string
-  config: Record<string, unknown>
-  grid_x: number
-  grid_y: number
-  grid_w: number
-  grid_h: number
-}
+// Re-export so existing importers (api/widgets.ts) don't need updating yet
+export type { WidgetInstance }
 
 interface Props {
   widgets: WidgetInstance[]
@@ -20,18 +13,16 @@ interface Props {
 }
 
 function renderWidget(w: WidgetInstance) {
-  switch (w.widget_type) {
-    case 'dummy':
-      return <DummyWidget config={w.config as { nimi?: string }} />
-    case 'tech_about':
-      return <TechAboutWidget />
-    default:
-      return (
-        <div className="flex items-center justify-center h-full rounded-lg border border-slate-700 bg-slate-800/50 text-slate-500 text-sm">
-          Unknown widget: {w.widget_type}
-        </div>
-      )
+  const def = resolveWidget(w.widget_type)
+  if (!def) {
+    return (
+      <div className="flex items-center justify-center h-full rounded-lg border border-slate-700 bg-slate-800/50 text-slate-500 text-sm">
+        Unknown widget: {w.widget_type}
+      </div>
+    )
   }
+  const config = { ...def.defaultConfig, ...w.config }
+  return <def.component config={config} instanceId={w.id} />
 }
 
 export default function DashboardGrid({ widgets, onLayoutSave }: Props) {

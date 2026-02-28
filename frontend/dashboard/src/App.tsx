@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Layout } from 'react-grid-layout'
 import DashboardGrid from './components/Grid/DashboardGrid'
 import { fetchWidgets, saveLayout } from './api/widgets'
+import './components/widgets'  // registers all built-in widget types
 
 export default function App() {
   const queryClient = useQueryClient()

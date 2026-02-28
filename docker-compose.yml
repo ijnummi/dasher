@@ -17,16 +17,16 @@ services:
 
   dashboard:
     build:
-      context: ./frontend/dashboard
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/dashboard/Dockerfile
     expose:
       - "80"
     restart: unless-stopped
 
   admin:
     build:
-      context: ./frontend/admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/admin/Dockerfile
     expose:
       - "80"
     restart: unless-stopped

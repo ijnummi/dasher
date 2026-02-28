@@ -1,4 +1,25 @@
-function App() {
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { Layout } from 'react-grid-layout'
+import DashboardGrid from './components/Grid/DashboardGrid'
+import { fetchWidgets, saveLayout } from './api/widgets'
+
+export default function App() {
+  const queryClient = useQueryClient()
+
+  const { data: widgets = [], isLoading, isError } = useQuery({
+    queryKey: ['widgets'],
+    queryFn: fetchWidgets,
+  })
+
+  const layoutMutation = useMutation({
+    mutationFn: saveLayout,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+  })
+
+  function handleLayoutChange(layout: Layout[]) {
+    layoutMutation.mutate(layout)
+  }
+
   return (
     <div className="min-h-screen p-4">
       <header className="mb-6">
@@ -6,15 +27,12 @@ function App() {
         <p className="text-slate-400 text-sm">Dashboard</p>
       </header>
       <main>
-        <div className="grid grid-cols-1 gap-4 text-center text-slate-500">
-          <div className="rounded-lg border border-slate-700 p-8">
-            <p className="text-lg">Dashboard is ready.</p>
-            <p className="text-sm mt-2">Widgets will appear here once configured.</p>
-          </div>
-        </div>
+        {isLoading && <p className="text-slate-500">Loading widgets…</p>}
+        {isError && <p className="text-red-400">Failed to load widgets.</p>}
+        {!isLoading && !isError && (
+          <DashboardGrid widgets={widgets} onLayoutChange={handleLayoutChange} />
+        )}
       </main>
     </div>
   )
 }
-
-export default App

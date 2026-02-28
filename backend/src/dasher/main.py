@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from dasher.database import init_db
-from dasher.routers import crawler, hass, layout, rss, sabnzbd, unifi, websocket, widgets
+from dasher.routers import crawler, hass, layout, rss, sabnzbd, unifi, websocket
 
 
 @asynccontextmanager
@@ -30,7 +30,6 @@ app.add_middleware(
 
 app.include_router(websocket.router)
 app.include_router(layout.router)
-app.include_router(widgets.router)
 app.include_router(rss.router)
 app.include_router(hass.router)
 app.include_router(sabnzbd.router)

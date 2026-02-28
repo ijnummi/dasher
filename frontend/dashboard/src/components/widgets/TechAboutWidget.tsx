@@ -1,4 +1,4 @@
-const { backend, dashboard, admin } = __VERSIONS__
+const { backend, dashboard, admin } = __VERSIONS__ ?? { backend: {}, dashboard: {}, admin: {} }
 
 const DISPLAY_NAMES: Record<string, string> = {
   // backend

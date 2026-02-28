@@ -1,4 +1,8 @@
+import logging
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -6,6 +10,9 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite+aiosqlite:///./data/dasher.db"
     secret_key: str = "changeme"
+
+    # Comma-separated origins for CORS, e.g. "http://localhost,http://localhost:80"
+    cors_origins: list[str] = ["http://localhost", "http://localhost:80"]
 
     hass_url: str = ""
     hass_token: str = ""
@@ -21,3 +28,9 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+if settings.secret_key == "changeme":
+    logger.warning(
+        "SECRET_KEY is set to the insecure default 'changeme'. "
+        "Set a real secret in your .env file before deploying."
+    )

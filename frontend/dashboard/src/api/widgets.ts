@@ -14,7 +14,7 @@ export async function saveLayout(layout: Layout[]): Promise<void> {
   await Promise.all(
     layout.map((item) =>
       fetch(`${BASE}/widgets/instances/${item.i}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ grid_x: item.x, grid_y: item.y, grid_w: item.w, grid_h: item.h }),
       })

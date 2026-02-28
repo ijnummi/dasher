@@ -16,7 +16,7 @@ export interface WidgetInstance {
 
 interface Props {
   widgets: WidgetInstance[]
-  onLayoutChange: (layout: Layout[]) => void
+  onLayoutSave: (layout: Layout[]) => void
 }
 
 function renderWidget(w: WidgetInstance) {
@@ -34,7 +34,7 @@ function renderWidget(w: WidgetInstance) {
   }
 }
 
-export default function DashboardGrid({ widgets, onLayoutChange }: Props) {
+export default function DashboardGrid({ widgets, onLayoutSave }: Props) {
   const layout: Layout[] = widgets.map((w) => ({
     i: w.id,
     x: w.grid_x,
@@ -51,7 +51,8 @@ export default function DashboardGrid({ widgets, onLayoutChange }: Props) {
       rowHeight={80}
       width={1200}
       draggableHandle=".drag-handle"
-      onLayoutChange={onLayoutChange}
+      onDragStop={(layout) => onLayoutSave(layout)}
+      onResizeStop={(layout) => onLayoutSave(layout)}
     >
       {widgets.map((w) => (
         <div key={w.id} className="relative">

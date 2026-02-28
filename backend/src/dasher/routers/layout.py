@@ -5,13 +5,9 @@ import aiosqlite
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from dasher.config import settings
+from dasher.database import db_path
 
 router = APIRouter(prefix="/widgets", tags=["widgets"])
-
-
-def _db_path() -> str:
-    return settings.database_url.replace("sqlite+aiosqlite:///", "")
 
 
 # --- Schemas ---
@@ -36,7 +32,8 @@ class WidgetPositionUpdate(BaseModel):
 
 @router.get("/instances")
 async def list_instances() -> dict:
-    async with aiosqlite.connect(_db_path()) as db:
+    async with aiosqlite.connect(db_path()) as db:
+        await db.execute("PRAGMA foreign_keys = ON")
         db.row_factory = aiosqlite.Row
         async with db.execute(
             "SELECT id, widget_type, config, grid_x, grid_y, grid_w, grid_h FROM widget_instances ORDER BY grid_y, grid_x"
@@ -61,7 +58,8 @@ async def list_instances() -> dict:
 @router.post("/instances", status_code=201)
 async def create_instance(body: WidgetConfig) -> dict:
     widget_id = str(uuid.uuid4())
-    async with aiosqlite.connect(_db_path()) as db:
+    async with aiosqlite.connect(db_path()) as db:
+        await db.execute("PRAGMA foreign_keys = ON")
         await db.execute(
             "INSERT INTO widget_instances (id, widget_type, config, grid_x, grid_y, grid_w, grid_h) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (widget_id, body.widget_type, json.dumps(body.config), body.grid_x, body.grid_y, body.grid_w, body.grid_h),
@@ -70,9 +68,10 @@ async def create_instance(body: WidgetConfig) -> dict:
     return {"id": widget_id}
 
 
-@router.put("/instances/{widget_id}")
+@router.patch("/instances/{widget_id}")
 async def update_instance(widget_id: str, body: WidgetPositionUpdate) -> dict:
-    async with aiosqlite.connect(_db_path()) as db:
+    async with aiosqlite.connect(db_path()) as db:
+        await db.execute("PRAGMA foreign_keys = ON")
         result = await db.execute(
             "UPDATE widget_instances SET grid_x=?, grid_y=?, grid_w=?, grid_h=? WHERE id=?",
             (body.grid_x, body.grid_y, body.grid_w, body.grid_h, widget_id),
@@ -85,6 +84,7 @@ async def update_instance(widget_id: str, body: WidgetPositionUpdate) -> dict:
 
 @router.delete("/instances/{widget_id}", status_code=204)
 async def delete_instance(widget_id: str) -> None:
-    async with aiosqlite.connect(_db_path()) as db:
+    async with aiosqlite.connect(db_path()) as db:
+        await db.execute("PRAGMA foreign_keys = ON")
         await db.execute("DELETE FROM widget_instances WHERE id=?", (widget_id,))
         await db.commit()

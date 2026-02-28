@@ -14,9 +14,10 @@ export default function App() {
   const layoutMutation = useMutation({
     mutationFn: saveLayout,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+    onError: () => console.error('Failed to save layout'),
   })
 
-  function handleLayoutChange(layout: Layout[]) {
+  function handleLayoutSave(layout: Layout[]) {
     layoutMutation.mutate(layout)
   }
 
@@ -29,8 +30,9 @@ export default function App() {
       <main>
         {isLoading && <p className="text-slate-500">Loading widgets…</p>}
         {isError && <p className="text-red-400">Failed to load widgets.</p>}
+        {layoutMutation.isError && <p className="text-red-400 text-sm mt-2">Layout save failed.</p>}
         {!isLoading && !isError && (
-          <DashboardGrid widgets={widgets} onLayoutChange={handleLayoutChange} />
+          <DashboardGrid widgets={widgets} onLayoutSave={handleLayoutSave} />
         )}
       </main>
     </div>

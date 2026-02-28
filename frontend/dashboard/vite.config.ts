@@ -13,7 +13,7 @@ function readJson(path: string): Record<string, unknown> {
 
 // Parse `dependencies = ["pkg>=1.0", ...]` from pyproject.toml
 function parsePyprojectDeps(content: string): Record<string, string> {
-  const match = content.match(/^dependencies\s*=\s*\[([\s\S]*?)\]/m)
+  const match = content.match(/^dependencies\s*=\s*\[([\s\S]*?)^\]/m)
   if (!match) return {}
   const deps: Record<string, string> = {}
   for (const line of match[1].split('\n')) {

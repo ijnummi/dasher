@@ -5,6 +5,7 @@ import {
   Link,
   Outlet,
 } from '@tanstack/react-router'
+import LayoutPage from './pages/LayoutPage'
 
 // Root layout
 const rootRoute = createRootRoute({
@@ -50,12 +51,7 @@ const indexRoute = createRoute({
 const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/layout',
-  component: () => (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Layout Editor</h1>
-      <p className="text-slate-400">Drag and drop widgets to configure the dashboard layout.</p>
-    </div>
-  ),
+  component: LayoutPage,
 })
 
 const rssRoute = createRoute({

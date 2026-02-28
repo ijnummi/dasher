@@ -102,9 +102,11 @@ export interface WidgetDefinition<TConfig = Record<string, unknown>> {
 export interface WidgetInstance {
   id: string
   widget_type: string
+  name: string
   config: Record<string, unknown>
   grid_x: number
   grid_y: number
   grid_w: number
   grid_h: number
+  background_color: string | null
 }

@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import uuid
+from urllib.parse import urlparse
 
 import aiosqlite
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -25,7 +26,7 @@ async def get_session() -> AsyncSession:
 
 
 def db_path() -> str:
-    return settings.database_url.replace("sqlite+aiosqlite:///", "")
+    return urlparse(settings.database_url).path
 
 
 DDL = """
@@ -34,11 +35,13 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS widget_instances (
     id TEXT PRIMARY KEY,
     widget_type TEXT NOT NULL,
+    name TEXT NOT NULL DEFAULT '',
     config JSON NOT NULL DEFAULT '{}',
     grid_x INT DEFAULT 0,
     grid_y INT DEFAULT 0,
     grid_w INT DEFAULT 2,
     grid_h INT DEFAULT 2,
+    background_color TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -96,6 +99,17 @@ async def init_db() -> None:
                 if stmt:
                     await db.execute(stmt)
             await db.commit()
+
+            # Idempotent column migrations for databases created before these columns were added
+            for migration_sql in [
+                "ALTER TABLE widget_instances ADD COLUMN name TEXT NOT NULL DEFAULT ''",
+                "ALTER TABLE widget_instances ADD COLUMN background_color TEXT DEFAULT NULL",
+            ]:
+                try:
+                    await db.execute(migration_sql)
+                    await db.commit()
+                except aiosqlite.OperationalError:
+                    pass  # column already exists
 
             # fmt: off
             await db.executemany(

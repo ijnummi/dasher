@@ -7,8 +7,8 @@ interface DummyConfig {
 function DummyWidget({ config }: WidgetProps<DummyConfig>) {
   const name = config.nimi?.trim() || 'World'
   return (
-    <div className="flex items-center justify-center h-full rounded-lg border border-slate-700 bg-slate-800/50">
-      <p className="text-xl font-semibold text-slate-100">Hello {name}</p>
+    <div className="flex items-center justify-center h-full">
+      <p className="text-xl font-semibold text-[var(--widget-fg)]">Hello {name}</p>
     </div>
   )
 }

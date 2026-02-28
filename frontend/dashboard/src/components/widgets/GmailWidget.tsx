@@ -5,7 +5,11 @@ async function fetchUnread(): Promise<number | null> {
   const res = await fetch('/api/gmail/unread')
   if (res.status === 503) return null          // not configured
   if (!res.ok) throw new Error('Gmail API error')
-  return (await res.json()).unread as number
+  const data = await res.json()
+  if (typeof data.unread !== 'number') {
+    throw new Error(`Unexpected Gmail API response: ${JSON.stringify(data)}`)
+  }
+  return data.unread
 }
 
 function GmailWidget(_: WidgetProps) {
@@ -16,14 +20,14 @@ function GmailWidget(_: WidgetProps) {
   })
 
   return (
-    <div className="flex flex-col items-center justify-center h-full rounded-lg border border-slate-700 bg-slate-800/50 gap-1">
-      {isLoading && <p className="text-slate-400 text-sm">Loading…</p>}
-      {isError   && <p className="text-red-400 text-sm">Gmail error</p>}
-      {data === null && <p className="text-slate-500 text-sm">Gmail not configured</p>}
+    <div className="flex flex-col items-center justify-center h-full gap-1">
+      {isLoading && <p className="text-[var(--widget-fg-muted)] text-sm">Loading…</p>}
+      {isError   && <p className="text-red-500 dark:text-red-400 text-sm">Gmail error</p>}
+      {data === null && <p className="text-[var(--widget-fg-dim)] text-sm">Gmail not configured</p>}
       {typeof data === 'number' && (
         <>
-          <span className="text-4xl font-bold text-slate-100">{data}</span>
-          <span className="text-xs text-slate-400">unread messages</span>
+          <span className="text-4xl font-bold text-[var(--widget-fg)]">{data}</span>
+          <span className="text-xs text-[var(--widget-fg-muted)]">unread messages</span>
         </>
       )}
     </div>

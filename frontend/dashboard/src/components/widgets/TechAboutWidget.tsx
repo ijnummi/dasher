@@ -49,16 +49,16 @@ const ROLES: Record<string, string> = {
 function Section({ title, deps }: { title: string; deps: Record<string, string> }) {
   return (
     <div className="min-w-48">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--widget-fg-muted)] mb-1">{title}</h3>
       <table className="w-full text-sm">
         <tbody>
           {Object.entries(deps).map(([pkg, version]) => (
-            <tr key={pkg} className="border-t border-slate-700/50">
-              <td className="py-0.5 pr-3 font-medium text-slate-200 whitespace-nowrap">
+            <tr key={pkg} className="border-t border-[var(--widget-rule)]">
+              <td className="py-0.5 pr-3 font-medium text-[var(--widget-fg)] whitespace-nowrap">
                 {DISPLAY_NAMES[pkg] ?? pkg}
               </td>
-              <td className="py-0.5 pr-3 font-mono text-slate-400 whitespace-nowrap">{version}</td>
-              <td className="py-0.5 text-slate-500 text-xs">{ROLES[pkg] ?? ''}</td>
+              <td className="py-0.5 pr-3 font-mono text-[var(--widget-fg-muted)] whitespace-nowrap">{version}</td>
+              <td className="py-0.5 text-[var(--widget-fg-dim)] text-xs">{ROLES[pkg] ?? ''}</td>
             </tr>
           ))}
         </tbody>
@@ -69,8 +69,8 @@ function Section({ title, deps }: { title: string; deps: Record<string, string> 
 
 function TechAboutWidget(_: WidgetProps) {
   return (
-    <div className="h-full rounded-lg border border-slate-700 bg-slate-800/50 p-3 overflow-auto">
-      <h2 className="text-sm font-bold text-slate-100 mb-3">Tech Stack</h2>
+    <div className="h-full p-3 overflow-auto">
+      <h2 className="text-sm font-bold text-[var(--widget-fg)] mb-3">Tech Stack</h2>
       <div className="flex gap-6 flex-wrap">
         <Section title="Backend" deps={backend} />
         <Section title="Dashboard" deps={dashboard} />

@@ -1,12 +1,43 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: dark: utilities apply when any ancestor has class="dark" */
+@variant dark (&:where(.dark, .dark *));
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #0f172a;
-  color: #f8fafc;
+  background: #f1f5f9; /* slate-100 — light default */
+  color: #0f172a;       /* slate-900 */
   font-family: system-ui, -apple-system, sans-serif;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.dark body {
+  background: #0f172a; /* slate-950 */
+  color: #f8fafc;       /* slate-50 */
+}
+
+/*
+ * Per-widget foreground tokens — set on the container via data-widget-theme
+ * based on the resolved background color's WCAG luminance. Widget components
+ * reference these with text-[var(--widget-fg)] etc. so text stays readable
+ * regardless of whether a light or dark custom color was chosen.
+ */
+[data-widget-theme="light"] {
+  --widget-fg:       #0f172a; /* slate-900 */
+  --widget-fg-muted: #475569; /* slate-600 */
+  --widget-fg-dim:   #94a3b8; /* slate-400 */
+  --widget-amber:    #b45309; /* amber-700 */
+  --widget-rule:     rgb(203 213 225 / 0.7); /* slate-300 */
+}
+
+[data-widget-theme="dark"] {
+  --widget-fg:       #f1f5f9; /* slate-100 */
+  --widget-fg-muted: #94a3b8; /* slate-400 */
+  --widget-fg-dim:   #64748b; /* slate-500 */
+  --widget-amber:    #fbbf24; /* amber-400 */
+  --widget-rule:     rgb(51 65 85 / 0.5);   /* slate-700 */
 }

@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 settings = Settings()
 
 if settings.secret_key == "changeme":
-    logger.warning(
+    raise RuntimeError(
         "SECRET_KEY is set to the insecure default 'changeme'. "
-        "Set a real secret in your .env file before deploying."
+        "Set a real secret in your .env file before starting the app."
     )

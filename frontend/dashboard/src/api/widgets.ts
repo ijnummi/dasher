@@ -10,8 +10,17 @@ export async function fetchWidgets(): Promise<WidgetInstance[]> {
   return data.widgets
 }
 
+export async function patchWidgetColor(id: string, color: string | null): Promise<void> {
+  const res = await fetch(`${BASE}/widgets/instances/${id}/color`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ background_color: color }),
+  })
+  if (!res.ok) throw new Error(`Failed to update color for widget ${id}`)
+}
+
 export async function saveLayout(layout: Layout[]): Promise<void> {
-  await Promise.all(
+  const results = await Promise.allSettled(
     layout.map((item) =>
       fetch(`${BASE}/widgets/instances/${item.i}`, {
         method: 'PATCH',
@@ -20,4 +29,9 @@ export async function saveLayout(layout: Layout[]): Promise<void> {
       })
     )
   )
+  results.forEach((result, idx) => {
+    if (result.status === 'rejected') {
+      console.error(`Failed to save layout for widget ${layout[idx].i}:`, result.reason)
+    }
+  })
 }

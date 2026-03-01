@@ -22,6 +22,15 @@ export async function fetchInstances(): Promise<WidgetInstance[]> {
   return (await res.json()).widgets
 }
 
+export async function patchWidgetName(id: string, name: string): Promise<void> {
+  const res = await fetch(`${BASE}/widgets/instances/${id}/name`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
+  if (!res.ok) throw new Error(`Failed to update name for widget ${id}`)
+}
+
 // SYNC: patchWidgetColor ↔ frontend/dashboard/src/api/widgets.ts patchWidgetColor (byte-for-byte identical)
 export async function patchWidgetColor(id: string, color: string | null): Promise<void> {
   const res = await fetch(`${BASE}/widgets/instances/${id}/color`, {

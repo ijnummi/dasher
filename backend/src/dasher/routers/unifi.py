@@ -46,14 +46,14 @@ async def list_devices() -> dict:
                         await _do_login(client, base)
 
             client.cookies.update(_cookies)
-            resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
+            resp = await client.get(f"{base}/proxy/network/api/s/{_SITE}/stat/sta")
 
             if resp.status_code == 401:
                 # Session expired — re-login once, then retry
                 async with _login_lock:
                     _cookies.clear()
                     await _do_login(client, base)
-                resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
+                resp = await client.get(f"{base}/proxy/network/api/s/{_SITE}/stat/sta")
 
             resp.raise_for_status()
             data = resp.json()

@@ -8,7 +8,11 @@ import tailwindcss from '@tailwindcss/vite'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 function readJson(path: string): Record<string, unknown> {
-  return JSON.parse(readFileSync(path, 'utf-8'))
+  try {
+    return JSON.parse(readFileSync(path, 'utf-8'))
+  } catch {
+    return {}
+  }
 }
 
 // Parse `dependencies = ["pkg>=1.0", ...]` from pyproject.toml
@@ -28,9 +32,13 @@ function pickDeps(pkg: Record<string, unknown>, keys: string[]): Record<string, 
   return Object.fromEntries(keys.filter((k) => deps[k]).map((k) => [k, deps[k]]))
 }
 
+function readText(path: string): string {
+  try { return readFileSync(path, 'utf-8') } catch { return '' }
+}
+
 const dashboardPkg = readJson(resolve(__dirname, 'package.json'))
 const adminPkg     = readJson(resolve(__dirname, '../admin/package.json'))
-const pyproject    = readFileSync(resolve(__dirname, '../../backend/pyproject.toml'), 'utf-8')
+const pyproject    = readText(resolve(__dirname, '../../backend/pyproject.toml'))
 
 const VERSIONS = {
   backend: parsePyprojectDeps(pyproject),

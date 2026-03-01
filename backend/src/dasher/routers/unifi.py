@@ -12,15 +12,20 @@ _SITE = "default"
 
 @router.get("/devices")
 async def list_devices() -> dict:
-    if not settings.unifi_url or not settings.unifi_api_key:
+    if not settings.unifi_url or not settings.unifi_user or not settings.unifi_pass:
         return {"configured": False, "devices": []}
 
     base = settings.unifi_url.rstrip("/")
-    headers = {"X-API-KEY": settings.unifi_api_key}
 
     try:
         # verify=False: UniFi controllers commonly use self-signed TLS certs
-        async with make_client(verify=False, timeout=10.0, headers=headers) as client:
+        async with make_client(verify=False, timeout=10.0) as client:
+            login = await client.post(
+                f"{base}/api/login",
+                json={"username": settings.unifi_user, "password": settings.unifi_pass},
+            )
+            login.raise_for_status()
+
             resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
             resp.raise_for_status()
             data = resp.json()

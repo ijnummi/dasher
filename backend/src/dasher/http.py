@@ -6,7 +6,7 @@ import httpx
 logger = logging.getLogger(__name__)
 
 
-def _log_request(request: httpx.Request) -> None:
+async def _log_request(request: httpx.Request) -> None:
     logger.debug("→ %s %s", request.method, request.url)
 
 

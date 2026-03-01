@@ -38,6 +38,10 @@ class WidgetPositionUpdate(BaseModel):
     name: str | None = None
 
 
+class WidgetNameUpdate(BaseModel):
+    name: str
+
+
 class WidgetColorUpdate(BaseModel):
     background_color: str | None  # None clears the stored color (reverts to auto)
 
@@ -100,6 +104,19 @@ async def update_instance(widget_id: str, body: WidgetPositionUpdate) -> dict:
                 "UPDATE widget_instances SET grid_x=?, grid_y=?, grid_w=?, grid_h=? WHERE id=?",
                 (body.grid_x, body.grid_y, body.grid_w, body.grid_h, widget_id),
             )
+        await db.commit()
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Widget not found")
+    return {"ok": True}
+
+
+@router.patch("/instances/{widget_id}/name")
+async def update_instance_name(widget_id: str, body: WidgetNameUpdate) -> dict:
+    async with db_connect() as db:
+        result = await db.execute(
+            "UPDATE widget_instances SET name=? WHERE id=?",
+            (body.name, widget_id),
+        )
         await db.commit()
         if result.rowcount == 0:
             raise HTTPException(status_code=404, detail="Widget not found")

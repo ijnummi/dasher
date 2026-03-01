@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/widgets", tags=["widgets"])
 
-WIDGET_TYPES = ["clock", "dummy", "tech_about", "rss", "hass", "sabnzbd", "unifi", "html", "crawler_alert", "gmail"]
+WIDGET_TYPES = ["clock", "dummy", "tech_about", "rss", "hass", "sabnzbd", "unifi", "html", "crawler_alert", "gmail", "widget_directory"]
 
 
 @router.get("/types")

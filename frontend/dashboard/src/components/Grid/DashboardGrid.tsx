@@ -29,7 +29,7 @@ function renderWidget(w: WidgetInstance) {
     )
   }
   const config = { ...def.defaultConfig, ...w.config }
-  return <def.component config={config} instanceId={w.id} />
+  return <def.component config={config} instanceId={w.id} name={w.name} />
 }
 
 export default function DashboardGrid({
@@ -74,9 +74,9 @@ export default function DashboardGrid({
           const def = resolveWidget(w.widget_type)
           const hasName = !!w.name
 
-          const showNameBar    = !editMode && hasName
+          const showNameChip   = !editMode && hasName
           const showDevBar     = !editMode && !hasName && devMode
-          const hasTopBar      = editMode || showNameBar || showDevBar
+          const hasTopBar      = editMode || showDevBar
           const showCornerLabel = !editMode && !hasName && !devMode
 
           const bgColor  = resolveWidgetColor(w.id, w.background_color, colorOverrides[w.id], dark)
@@ -89,10 +89,16 @@ export default function DashboardGrid({
               className="relative rounded-lg border border-slate-300/60 dark:border-slate-700/60 overflow-hidden"
               style={{ backgroundColor: bgColor }}
             >
-              {/* Named bar (non-edit) — type label in dev mode adds swatch */}
-              {showNameBar && (
-                <div className="absolute top-0 left-0 right-0 h-6 px-2 flex items-center gap-1.5">
-                  <span className="text-xs text-[var(--widget-fg-dim)] truncate flex-1 pointer-events-none">
+              {/* Name chip — sits on the top-left edge, colored with the widget's own bg */}
+              {showNameChip && (
+                <div className="absolute top-0 left-2 z-10 -translate-y-1/2 flex items-center gap-1">
+                  <span
+                    className="text-[10px] leading-none px-1.5 py-0.5 rounded pointer-events-none truncate max-w-[160px]"
+                    style={{
+                      backgroundColor: bgColor,
+                      color: bgTheme === 'dark' ? '#cbd5e1' : '#334155',
+                    }}
+                  >
                     {w.name}
                   </span>
                   {devMode && (

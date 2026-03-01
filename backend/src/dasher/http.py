@@ -10,7 +10,7 @@ def _log_request(request: httpx.Request) -> None:
     logger.debug("→ %s %s", request.method, request.url)
 
 
-def _log_response(response: httpx.Response) -> None:
+async def _log_response(response: httpx.Response) -> None:
     if response.is_error:
         logger.error("← %s %s", response.status_code, response.url)
     else:

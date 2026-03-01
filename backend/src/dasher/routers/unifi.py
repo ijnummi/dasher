@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlparse
 
 import aiohttp
@@ -7,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 
 from ..config import settings
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/unifi", tags=["unifi"])
 
 _SITE = "default"
@@ -20,6 +22,8 @@ async def list_devices() -> dict:
     parsed = urlparse(settings.unifi_url)
     host = parsed.hostname or settings.unifi_url
     port = parsed.port or 8443
+
+    logger.debug("UniFi connecting to %s:%s site=%s", host, port, _SITE)
 
     try:
         # CookieJar(unsafe=True) is required when the host is an IP address
@@ -51,9 +55,14 @@ async def list_devices() -> dict:
                 })
 
     except aiounifi.Unauthorized as exc:
+        logger.error("UniFi authentication failed: %s", exc)
         raise HTTPException(status_code=502, detail="UniFi authentication failed") from exc
     except (aiounifi.RequestError, aiounifi.AiounifiException) as exc:
-        raise HTTPException(status_code=502, detail=f"UniFi unreachable: {exc}") from exc
+        logger.error("UniFi error: %s", exc)
+        raise HTTPException(status_code=502, detail=f"UniFi error: {exc}") from exc
+    except Exception as exc:
+        logger.exception("UniFi unexpected error")
+        raise HTTPException(status_code=502, detail=f"UniFi unexpected error: {exc}") from exc
 
     devices.sort(key=lambda d: d["name"].lower())
     return {"configured": True, "devices": devices}

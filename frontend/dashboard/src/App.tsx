@@ -88,10 +88,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen p-4 bg-slate-100 dark:bg-slate-950">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Dasher</h1>
-        <p className="text-slate-600 dark:text-slate-400 text-sm">Dashboard</p>
-      </header>
+      {(editMode || devMode) && (
+        <header className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Dasher</h1>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">Dashboard</p>
+        </header>
+      )}
 
       {/* Floating toggles — top-right corner */}
       <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur px-3 py-1.5 shadow-lg border border-slate-200 dark:border-slate-700">

@@ -73,6 +73,7 @@ export interface WidgetSettingsSchema {
 export interface WidgetProps<TConfig = Record<string, unknown>> {
   config: TConfig
   instanceId: string
+  name: string
 }
 
 // ── Widget Definition ──────────────────────────────────────────────────────────

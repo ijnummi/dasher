@@ -83,12 +83,9 @@ export default function DashboardGrid({
           const bgTheme  = getBgTheme(bgColor)
 
           return (
-            <div
-              key={w.id}
-              data-widget-theme={bgTheme}
-              className="relative rounded-lg border border-slate-300/60 dark:border-slate-700/60 overflow-hidden"
-              style={{ backgroundColor: bgColor }}
-            >
+            // Outer div: no overflow-hidden so the name chip can straddle the top edge
+            <div key={w.id} data-widget-theme={bgTheme} className="relative">
+
               {/* Name chip — sits on the top-left edge, colored with the widget's own bg */}
               {showNameChip && (
                 <div className="absolute top-0 left-2 z-10 -translate-y-1/2 flex items-center gap-1">
@@ -110,30 +107,6 @@ export default function DashboardGrid({
                 </div>
               )}
 
-              {/* Dev bar — type key + swatch */}
-              {showDevBar && (
-                <div className="absolute top-0 left-0 right-0 h-6 px-2 flex items-center gap-1.5">
-                  <span className="text-xs text-[var(--widget-amber)] font-mono truncate flex-1 pointer-events-none">
-                    {w.widget_type}
-                  </span>
-                  <ColorSwatch
-                    color={bgColor}
-                    onClick={() => onColorChange(w.id, randomWidgetColor(dark))}
-                  />
-                </div>
-              )}
-
-              {/* Edit mode drag handle */}
-              {editMode && (
-                <div className="drag-handle absolute top-1 left-1 right-1 h-5 cursor-grab rounded bg-slate-200/60 dark:bg-slate-700/40 hover:bg-slate-300/60 dark:hover:bg-slate-600/60 transition-colors flex items-center justify-center">
-                  {w.name && (
-                    <span className="text-xs text-[var(--widget-fg-muted)] truncate px-1 pointer-events-none">
-                      {w.name}
-                    </span>
-                  )}
-                </div>
-              )}
-
               {/* Corner ghost label — sits on the page bg, not the widget bg */}
               {showCornerLabel && (
                 <span className="absolute top-0 left-2 text-[10px] leading-none text-slate-500 dark:text-slate-400 pointer-events-none -translate-y-1/2 bg-slate-100 dark:bg-slate-950 px-1">
@@ -141,8 +114,38 @@ export default function DashboardGrid({
                 </span>
               )}
 
-              <div className={hasTopBar ? 'pt-6 h-full' : 'h-full'}>
-                {renderWidget(w)}
+              {/* Inner box: border + bg + overflow-hidden for content */}
+              <div
+                className="rounded-lg border border-slate-300/60 dark:border-slate-700/60 overflow-hidden h-full"
+                style={{ backgroundColor: bgColor }}
+              >
+                {/* Dev bar — type key + swatch */}
+                {showDevBar && (
+                  <div className="absolute top-0 left-0 right-0 h-6 px-2 flex items-center gap-1.5">
+                    <span className="text-xs text-[var(--widget-amber)] font-mono truncate flex-1 pointer-events-none">
+                      {w.widget_type}
+                    </span>
+                    <ColorSwatch
+                      color={bgColor}
+                      onClick={() => onColorChange(w.id, randomWidgetColor(dark))}
+                    />
+                  </div>
+                )}
+
+                {/* Edit mode drag handle */}
+                {editMode && (
+                  <div className="drag-handle absolute top-1 left-1 right-1 h-5 cursor-grab rounded bg-slate-200/60 dark:bg-slate-700/40 hover:bg-slate-300/60 dark:hover:bg-slate-600/60 transition-colors flex items-center justify-center">
+                    {w.name && (
+                      <span className="text-xs text-[var(--widget-fg-muted)] truncate px-1 pointer-events-none">
+                        {w.name}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className={hasTopBar ? 'pt-6 h-full' : 'h-full'}>
+                  {renderWidget(w)}
+                </div>
               </div>
             </div>
           )

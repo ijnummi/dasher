@@ -17,3 +17,15 @@ async def get_unread() -> dict:
     except Exception as exc:
         logger.exception("Gmail API error")
         raise HTTPException(status_code=502, detail="Gmail API error") from exc
+
+
+@router.get("/inbox")
+async def get_inbox() -> dict:
+    if not settings.google_client_id or not settings.google_refresh_token:
+        return {"configured": False, "messages": []}
+    try:
+        messages = await gmail_service.get_inbox_messages(limit=5)
+        return {"configured": True, "messages": messages}
+    except Exception as exc:
+        logger.exception("Gmail inbox error")
+        raise HTTPException(status_code=502, detail="Gmail API error") from exc

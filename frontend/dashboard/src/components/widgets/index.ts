@@ -10,6 +10,7 @@ import { definition as fakeRssDef } from './FakeRssWidget'
 import { definition as gmailDef } from './GmailWidget'
 import { definition as sabnzbdDef } from './SABnzbdWidget'
 import { definition as techAboutDef } from './TechAboutWidget'
+import { definition as unifiDef } from './UnifiWidget'
 import { definition as widgetDirectoryDef } from './WidgetDirectoryWidget'
 
 registerWidget(clockDef)
@@ -18,4 +19,5 @@ registerWidget(fakeRssDef)
 registerWidget(gmailDef)
 registerWidget(sabnzbdDef)
 registerWidget(techAboutDef)
+registerWidget(unifiDef)
 registerWidget(widgetDirectoryDef)

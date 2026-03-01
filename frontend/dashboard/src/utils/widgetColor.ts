@@ -1,3 +1,24 @@
+/** Convert a CSS hex color (#rrggbb) to [h, s, l] (s and l in 0–100). */
+function hexToHsl(hex: string): [number, number, number] {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  const d = max - min
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1))
+  let h = 0
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d) % 6
+    else if (max === g) h = (b - r) / d + 2
+    else h = (r - g) / d + 4
+    h *= 60
+    if (h < 0) h += 360
+  }
+  return [h, s * 100, l * 100]
+}
+
 /** Convert HSL values to a CSS hex color string (#rrggbb). */
 function hslToHex(h: number, s: number, l: number): string {
   s /= 100
@@ -57,6 +78,18 @@ export function getBgTheme(color: string): 'light' | 'dark' {
   if (!color.startsWith('#') || color.length < 7) return 'dark'
   // Neutral luminance ≈ 0.179 — above it white bg, below it dark bg
   return relativeLuminance(color) > 0.179 ? 'light' : 'dark'
+}
+
+/**
+ * Return a mid-range lightness version of a widget background color for use
+ * as a name-chip background. Preserves the hue but pins lightness to ~44–56 %
+ * so the chip is clearly coloured against both dark and light page backgrounds.
+ */
+export function getChipBg(hex: string): string {
+  if (!hex.startsWith('#') || hex.length < 7) return hex
+  const [h, , l] = hexToHsl(hex)
+  const chipL = l < 50 ? Math.min(l + 22, 46) : Math.max(l - 22, 54)
+  return hslToHex(h, 65, chipL)
 }
 
 /**

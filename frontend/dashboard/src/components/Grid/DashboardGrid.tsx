@@ -4,7 +4,7 @@ import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { resolveWidget } from '../../sdk'
 import type { WidgetInstance } from '../../sdk'
-import { resolveWidgetColor, randomWidgetColor, getBgTheme } from '../../utils/widgetColor'
+import { resolveWidgetColor, randomWidgetColor, getBgTheme, getChipBg } from '../../utils/widgetColor'
 
 // Re-export so existing importers (api/widgets.ts) don't need updating yet
 export type { WidgetInstance }
@@ -79,8 +79,10 @@ export default function DashboardGrid({
           const hasTopBar      = editMode || showDevBar
           const showCornerLabel = !editMode && !hasName && !devMode
 
-          const bgColor  = resolveWidgetColor(w.id, w.background_color, colorOverrides[w.id], dark)
-          const bgTheme  = getBgTheme(bgColor)
+          const bgColor   = resolveWidgetColor(w.id, w.background_color, colorOverrides[w.id], dark)
+          const bgTheme   = getBgTheme(bgColor)
+          const chipBg    = getChipBg(bgColor)
+          const chipTheme = getBgTheme(chipBg)
 
           return (
             // Outer div: no overflow-hidden so the name chip can straddle the top edge
@@ -92,8 +94,8 @@ export default function DashboardGrid({
                   <span
                     className="text-[10px] leading-none px-1.5 py-0.5 rounded pointer-events-none truncate max-w-[160px]"
                     style={{
-                      backgroundColor: bgColor,
-                      color: bgTheme === 'dark' ? '#cbd5e1' : '#334155',
+                      backgroundColor: chipBg,
+                      color: chipTheme === 'dark' ? '#f1f5f9' : '#0f172a',
                     }}
                   >
                     {w.name}

@@ -4,10 +4,18 @@
 // just import their registration module before the grid renders.
 
 import { registerWidget } from '../../sdk'
+import { definition as clockDef } from './ClockWidget'
 import { definition as dummyDef } from './DummyWidget'
+import { definition as fakeRssDef } from './FakeRssWidget'
 import { definition as gmailDef } from './GmailWidget'
+import { definition as sabnzbdDef } from './SABnzbdWidget'
 import { definition as techAboutDef } from './TechAboutWidget'
+import { definition as widgetDirectoryDef } from './WidgetDirectoryWidget'
 
+registerWidget(clockDef)
 registerWidget(dummyDef)
+registerWidget(fakeRssDef)
 registerWidget(gmailDef)
+registerWidget(sabnzbdDef)
 registerWidget(techAboutDef)
+registerWidget(widgetDirectoryDef)

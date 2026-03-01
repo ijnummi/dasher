@@ -21,7 +21,7 @@ async def list_devices() -> dict:
     try:
         # verify=False: UniFi controllers commonly use self-signed TLS certs
         async with make_client(verify=False, timeout=10.0, headers=headers) as client:
-            resp = await client.get(f"{base}/proxy/network/api/s/{_SITE}/stat/sta")
+            resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
             resp.raise_for_status()
             data = resp.json()
     except httpx.HTTPStatusError as exc:

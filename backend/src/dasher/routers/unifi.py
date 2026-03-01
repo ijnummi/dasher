@@ -1,12 +1,11 @@
 import logging
 from urllib.parse import urlparse
 
-import aiohttp
-import aiounifi
-from aiounifi.models.configuration import Configuration
+import httpx
 from fastapi import APIRouter, HTTPException
 
 from ..config import settings
+from ..http import make_client, log_response_error
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/unifi", tags=["unifi"])
@@ -19,50 +18,37 @@ async def list_devices() -> dict:
     if not settings.unifi_url or not settings.unifi_user or not settings.unifi_pass:
         return {"configured": False, "devices": []}
 
-    parsed = urlparse(settings.unifi_url)
-    host = parsed.hostname or settings.unifi_url
-    port = parsed.port or 8443
-
-    logger.debug("UniFi connecting to %s:%s site=%s", host, port, _SITE)
+    base = settings.unifi_url.rstrip("/")
 
     try:
-        # CookieJar(unsafe=True) is required when the host is an IP address
-        async with aiohttp.ClientSession(
-            cookie_jar=aiohttp.CookieJar(unsafe=True)
-        ) as session:
-            config = Configuration(
-                session=session,
-                host=host,
-                username=settings.unifi_user,
-                password=settings.unifi_pass,
-                port=port,
-                site=_SITE,
-                ssl_context=False,  # allow self-signed TLS certs
+        # verify=False: UniFi controllers commonly use self-signed TLS certs
+        async with make_client(verify=False, timeout=10.0) as client:
+            login = await client.post(
+                f"{base}/api/auth/login",
+                json={"username": settings.unifi_user, "password": settings.unifi_pass},
             )
-            controller = aiounifi.Controller(config)
-            await controller.login()
-            await controller.clients.update()
+            login.raise_for_status()
 
-            devices = []
-            for client in controller.clients.values():
-                name = client.hostname or client.name or client.mac
-                devices.append({
-                    "mac": client.mac,
-                    "name": name,
-                    "ip": client.ip,
-                    "is_wired": client.is_wired,
-                    "online": True,  # clients.update() only returns connected clients
-                })
+            resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
+            resp.raise_for_status()
+            data = resp.json()
 
-    except aiounifi.Unauthorized as exc:
-        logger.error("UniFi authentication failed: %s", exc)
-        raise HTTPException(status_code=502, detail="UniFi authentication failed") from exc
-    except (aiounifi.RequestError, aiounifi.AiounifiException) as exc:
-        logger.error("UniFi error: %s", exc)
+    except httpx.HTTPStatusError as exc:
+        log_response_error(exc)
         raise HTTPException(status_code=502, detail=f"UniFi error: {exc}") from exc
-    except Exception as exc:
-        logger.exception("UniFi unexpected error")
-        raise HTTPException(status_code=502, detail=f"UniFi unexpected error: {exc}") from exc
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail=f"UniFi unreachable: {exc}") from exc
+
+    devices = []
+    for c in data.get("data", []):
+        name = c.get("hostname") or c.get("name") or c.get("mac", "unknown")
+        devices.append({
+            "mac": c.get("mac", ""),
+            "name": name,
+            "ip": c.get("ip"),
+            "is_wired": c.get("is_wired", False),
+            "online": True,
+        })
 
     devices.sort(key=lambda d: d["name"].lower())
     return {"configured": True, "devices": devices}

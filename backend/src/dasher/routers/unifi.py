@@ -1,5 +1,5 @@
+import asyncio
 import logging
-from urllib.parse import urlparse
 
 import httpx
 from fastapi import APIRouter, HTTPException
@@ -12,6 +12,22 @@ router = APIRouter(prefix="/unifi", tags=["unifi"])
 
 _SITE = "default"
 
+# Cached cookies from last successful login — avoids re-logging in on every request
+# (controller rate-limits login attempts).
+_cookies: dict[str, str] = {}
+_login_lock = asyncio.Lock()
+
+
+async def _do_login(client: httpx.AsyncClient, base: str) -> None:
+    global _cookies
+    login = await client.post(
+        f"{base}/api/auth/login",
+        json={"username": settings.unifi_user, "password": settings.unifi_pass},
+    )
+    login.raise_for_status()
+    _cookies = dict(client.cookies)
+    logger.debug("UniFi login OK, session cached")
+
 
 @router.get("/devices")
 async def list_devices() -> dict:
@@ -23,13 +39,22 @@ async def list_devices() -> dict:
     try:
         # verify=False: UniFi controllers commonly use self-signed TLS certs
         async with make_client(verify=False, timeout=10.0) as client:
-            login = await client.post(
-                f"{base}/api/auth/login",
-                json={"username": settings.unifi_user, "password": settings.unifi_pass},
-            )
-            login.raise_for_status()
+            # Login on first call (no cached session yet)
+            if not _cookies:
+                async with _login_lock:
+                    if not _cookies:
+                        await _do_login(client, base)
 
+            client.cookies.update(_cookies)
             resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
+
+            if resp.status_code == 401:
+                # Session expired — re-login once, then retry
+                async with _login_lock:
+                    _cookies.clear()
+                    await _do_login(client, base)
+                resp = await client.get(f"{base}/api/s/{_SITE}/stat/sta")
+
             resp.raise_for_status()
             data = resp.json()
 

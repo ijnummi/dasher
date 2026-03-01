@@ -27,7 +27,12 @@ async def get_session() -> AsyncSession:
 
 
 def db_path() -> str:
-    return urlparse(settings.database_url).path
+    # urlparse("sqlite+aiosqlite:///./data/dasher.db").path == "/./data/dasher.db"
+    # which resolves to /data/dasher.db — outside the mounted volume.
+    # Split on "///" instead to get the raw SQLite path, then make it absolute
+    # relative to the process working directory (WORKDIR /app in Docker).
+    raw = settings.database_url.split("///", 1)[-1]
+    return os.path.abspath(raw)
 
 
 @asynccontextmanager
@@ -95,7 +100,8 @@ _SEED_HASS_ID          = "00000000-0000-0000-0000-000000000006"
 _SEED_SABNZBD_ID       = "00000000-0000-0000-0000-000000000007"
 _SEED_UNIFI_ID         = "00000000-0000-0000-0000-000000000008"
 _SEED_HTML_ID          = "00000000-0000-0000-0000-000000000009"
-_SEED_CRAWLER_ALERT_ID = "00000000-0000-0000-0000-000000000010"
+_SEED_CRAWLER_ALERT_ID    = "00000000-0000-0000-0000-000000000010"
+_SEED_WIDGET_DIRECTORY_ID = "00000000-0000-0000-0000-000000000011"
 
 
 async def init_db() -> None:
@@ -137,7 +143,9 @@ async def init_db() -> None:
                     (_SEED_SABNZBD_ID,       "sabnzbd",        json.dumps({}),                 0, 8,  3, 2),
                     (_SEED_UNIFI_ID,         "unifi",          json.dumps({}),                 3, 8,  3, 2),
                     (_SEED_HTML_ID,          "html",           json.dumps({}),                 6, 8,  3, 2),
-                    (_SEED_CRAWLER_ALERT_ID, "crawler_alert",  json.dumps({}),                 9, 8,  3, 2),
+                    (_SEED_CRAWLER_ALERT_ID,    "crawler_alert",    json.dumps({}),                 9, 8,  3, 2),
+                    # Row 3
+                    (_SEED_WIDGET_DIRECTORY_ID, "widget_directory", json.dumps({}),                 0, 10, 4, 5),
                 ],
             )
             # fmt: on

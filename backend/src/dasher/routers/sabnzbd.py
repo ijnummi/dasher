@@ -1,7 +1,8 @@
-import httpx
 from fastapi import APIRouter, HTTPException
+import httpx
 
 from ..config import settings
+from ..http import make_client
 
 router = APIRouter(prefix="/sabnzbd", tags=["sabnzbd"])
 
@@ -21,7 +22,7 @@ async def get_queue() -> dict:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
+        async with make_client(timeout=5.0) as client:
             resp = await client.get(url, params=params)
             resp.raise_for_status()
             data = resp.json()

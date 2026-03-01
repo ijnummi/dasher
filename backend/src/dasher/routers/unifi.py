@@ -1,7 +1,8 @@
-import httpx
 from fastapi import APIRouter, HTTPException
+import httpx
 
 from ..config import settings
+from ..http import make_client
 
 router = APIRouter(prefix="/unifi", tags=["unifi"])
 
@@ -19,7 +20,7 @@ async def list_devices() -> dict:
 
     try:
         # verify=False: UniFi controllers commonly use self-signed TLS certs
-        async with httpx.AsyncClient(verify=False, timeout=10.0, headers=headers) as client:
+        async with make_client(verify=False, timeout=10.0, headers=headers) as client:
             resp = await client.get(f"{base}/proxy/network/api/s/{_SITE}/stat/sta")
             resp.raise_for_status()
             data = resp.json()

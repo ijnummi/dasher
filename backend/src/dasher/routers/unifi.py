@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import httpx
 
 from ..config import settings
-from ..http import make_client
+from ..http import make_client, log_response_error
 
 router = APIRouter(prefix="/unifi", tags=["unifi"])
 
@@ -24,6 +24,9 @@ async def list_devices() -> dict:
             resp = await client.get(f"{base}/proxy/network/api/s/{_SITE}/stat/sta")
             resp.raise_for_status()
             data = resp.json()
+    except httpx.HTTPStatusError as exc:
+        log_response_error(exc)
+        raise HTTPException(status_code=502, detail=f"UniFi error: {exc}") from exc
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"UniFi unreachable: {exc}") from exc
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import httpx
 
 from ..config import settings
-from ..http import make_client
+from ..http import make_client, log_response_error
 
 router = APIRouter(prefix="/sabnzbd", tags=["sabnzbd"])
 
@@ -26,6 +26,9 @@ async def get_queue() -> dict:
             resp = await client.get(url, params=params)
             resp.raise_for_status()
             data = resp.json()
+    except httpx.HTTPStatusError as exc:
+        log_response_error(exc)
+        raise HTTPException(status_code=502, detail=f"SABnzbd error: {exc}") from exc
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"SABnzbd unreachable: {exc}") from exc
 

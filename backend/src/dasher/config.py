@@ -21,8 +21,7 @@ class Settings(BaseSettings):
     sabnzbd_api_key: str = ""
 
     unifi_url: str = ""
-    unifi_user: str = ""
-    unifi_pass: str = ""
+    unifi_api_key: str = ""
 
     ollama_url: str = "http://host.docker.internal:11434"
 
